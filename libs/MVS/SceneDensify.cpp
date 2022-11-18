@@ -1906,6 +1906,58 @@ bool Scene::ComputeDepthMaps(DenseDepthMapData& data)
 			return false;
 		data.progress.Release();
 	}
+
+//Change by Jyothi start
+std::system("//datasets//project//readdmapfile_final \'//datasets//project//opensfm//undistorted//openmvs//depthmaps\'  \'//datasets//project//opensfm//undistorted//openmvs//depthmaps_csv\'");
+std::cout<<"*************************one************************\n";
+std::system("python3 //datasets//project//fuseAIDepth.py");
+std::cout<<"*************************two************************\n";
+std::system("//datasets//project//saveexcelasdmap \'//datasets//project//opensfm//undistorted//openmvs//depthmaps_csv\'  \'//datasets//project//opensfm//undistorted//openmvs//depthmaps\' \'//datasets//project//corrected_depthmaps_csv\'");
+
+
+std::cout<<"Changes start\n";
+
+
+for (IIndex idx: data.images) 
+{
+	std::cout<<"started0.\n";
+	const DepthData& depthData(data.depthMaps.arrDepthData[idx]);
+	if (!depthData.IsValid()){
+		std::cout<<"Invalid depth map";
+		continue;
+	}
+	const String rawName(ComposeDepthFilePath(depthData.GetView().GetID(), "dmap"));
+	DepthData depthData_loaded;
+	depthData_loaded.Load(rawName, 1);
+	if (!depthData_loaded.IsValid()){ std::cout<<"Invalid Loaded depth map \n"; }
+	
+	//depthData.depthMap = depthData_loaded.depthMap;
+	const Image8U::Size sizeMap(depthData_loaded.depthMap.size());
+	const Image8U::Size sizeMap2(depthData.depthMap.size());
+	std::cout << "Printing size: "<< sizeof(depthData.depthMap) <<"    "<< sizeMap2.height <<"   " << sizeMap2.width ;
+	/*
+	 for (int i=0; i<sizeMap.height; ++i) {
+		for (int j=0; j<sizeMap.width; ++j) {
+			int rr = 10;
+			//depthData.depthMap(r, c) = depth;
+			//std::cout<<i<<"***"<<j<<"***"<<depthData_loaded.depthMap(i,j)<<" ";
+	}}	*/
+	//depthData.Save(ComposeDepthFilePath(depthData.GetView().GetID(), data.nEstimationGeometricIter < 0 ? "dmap" : "geo.dmap"));
+	std::cout<<"\nsaved!!!!!!"<<rawName<<"\n";
+
+	/* Try-1
+	depthData_loaded.Save(ComposeDepthFilePath(depthData.GetView().GetID(), "dmap"));
+	depthData.DecRef();
+	*/
+
+	
+}
+	
+std::cout<<"all changed code execution done\n";
+
+//Change by Jyothi end
+
+
 	return true;
 } // ComputeDepthMaps
 /*----------------------------------------------------------------*/
@@ -2109,6 +2161,7 @@ void Scene::DenseReconstructionFilter(void* pData)
 			break; }
 
 		case EVT_ADJUSTDEPTHMAP: {
+			std::cout << "Adjust Depth Map";
 			const EVTAdjustDepthMap& evtImage = *((EVTAdjustDepthMap*)(Event*)evt);
 			const IIndex idx = data.images[evtImage.idxImage];
 			DepthData& depthData(data.depthMaps.arrDepthData[idx]);
@@ -2124,8 +2177,8 @@ void Scene::DenseReconstructionFilter(void* pData)
 				return;
 			}
 			ASSERT(depthData.GetRef() == 1);
-			File::deleteFile(ComposeDepthFilePath(depthData.GetView().GetID(), "filtered.dmap").c_str());
-			File::deleteFile(ComposeDepthFilePath(depthData.GetView().GetID(), "filtered.cmap").c_str());
+			//File::deleteFile(ComposeDepthFilePath(depthData.GetView().GetID(), "filtered.dmap").c_str());
+			//File::deleteFile(ComposeDepthFilePath(depthData.GetView().GetID(), "filtered.cmap").c_str());
 			#if TD_VERBOSE != TD_VERBOSE_OFF
 			// save depth map as image
 			if (g_nVerbosityLevel > 2) {
